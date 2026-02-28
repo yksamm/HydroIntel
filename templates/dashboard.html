@@ -6,12 +6,13 @@
 </head>
 <body style="text-align:center; font-family:Arial;">
 
-    <h1>💧 Live Water Level Dashboard</h1>
-    <h2 id="level">Loading...</h2>
+<h1>💧 Live Water Level Dashboard</h1>
+<h2 id="level">Loading...</h2>
 
-    <canvas id="myChart" width="400" height="200"></canvas>
+<canvas id="myChart" width="400" height="200"></canvas>
 
 <script>
+
 let ctx = document.getElementById('myChart').getContext('2d');
 
 let chart = new Chart(ctx, {
@@ -19,8 +20,9 @@ let chart = new Chart(ctx, {
     data: {
         labels: [],
         datasets: [{
-            label: 'Water Level',
+            label: 'Water Level (%)',
             data: [],
+            borderColor: 'blue',
             borderWidth: 2
         }]
     },
@@ -38,8 +40,16 @@ function fetchData() {
     fetch('/latest')
     .then(response => response.json())
     .then(data => {
+
+        let color = "green";
+        if(data.alert == "WARNING") color = "gold";
+        if(data.alert == "CRITICAL") color = "orange";
+        if(data.alert == "EMERGENCY") color = "red";
+
         document.getElementById("level").innerHTML =
-            "Current Level: " + data.water_level + "%";
+            "Current Level: " + data.water_level + "%<br>" +
+            "Status: <span style='color:" + color +
+            "; font-weight:bold'>" + data.alert + "</span>";
 
         chart.data.labels.push("");
         chart.data.datasets[0].data.push(data.water_level);
@@ -55,6 +65,7 @@ function fetchData() {
 
 setInterval(fetchData, 5000);
 fetchData();
+
 </script>
 
 </body>
